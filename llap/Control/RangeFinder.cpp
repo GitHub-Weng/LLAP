@@ -10,6 +10,7 @@
 
 
 #include <stdlib.h>
+#include "LogUtil.h"
 
 
 RangeFinder::RangeFinder( UInt32 inMaxFramesPerSlice , UInt32 inNumFreq, Float32 inStartFreq, Float32 inFreqInterv )
@@ -501,7 +502,7 @@ void RangeFinder::GetBaseBand(void)
     {
         mFRecDataBuffer[i]= (Float32) (mRecDataBuffer[i]/32767.0);
     }
-    
+    log1VFloat32(mFRecDataBuffer, 512);
     for(i=0;i<mNumFreqs; i++)//mNumFreqs
     {
         vDSP_vmul(mFRecDataBuffer,1,mCosBuffer[i]+mCurProcPos,1,mTempBuffer,1,mCurRecPos); //multiply the cos

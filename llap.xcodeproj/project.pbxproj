@@ -38,6 +38,7 @@
 		269C73B61C7594AE00AF3CB5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		269C73B91C7594AE00AF3CB5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		269C73BB1C7594AE00AF3CB5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		511A07DF203E943000938826 /* LogUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogUtil.h; sourceTree = "<group>"; };
 		E1854A7B1ECDD02C00860993 /* AudioController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioController.h; path = Control/AudioController.h; sourceTree = "<group>"; };
 		E1854A7C1ECDD02C00860993 /* AudioController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AudioController.mm; path = Control/AudioController.mm; sourceTree = "<group>"; };
 		E1854A7D1ECDD02C00860993 /* RangeFinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RangeFinder.cpp; path = Control/RangeFinder.cpp; sourceTree = "<group>"; };
@@ -89,6 +90,7 @@
 		269C73A91C7594AE00AF3CB5 /* llap */ = {
 			isa = PBXGroup;
 			children = (
+				511A07DE203E943000938826 /* util */,
 				E1854A7A1ECDCFA100860993 /* Control */,
 				267CEFF41C75E7140053593B /* PublicUtility */,
 				269C73AD1C7594AE00AF3CB5 /* AppDelegate.h */,
@@ -110,6 +112,14 @@
 				269C73AB1C7594AE00AF3CB5 /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		511A07DE203E943000938826 /* util */ = {
+			isa = PBXGroup;
+			children = (
+				511A07DF203E943000938826 /* LogUtil.h */,
+			);
+			path = util;
 			sourceTree = "<group>";
 		};
 		E1854A7A1ECDCFA100860993 /* Control */ = {
@@ -154,7 +164,7 @@
 				TargetAttributes = {
 					269C73A61C7594AE00AF3CB5 = {
 						CreatedOnToolsVersion = 7.2.1;
-						DevelopmentTeam = T3PD9WT28P;
+						DevelopmentTeam = HK23QB553T;
 					};
 				};
 			};
@@ -310,11 +320,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = T3PD9WT28P;
+				DEVELOPMENT_TEAM = HK23QB553T;
 				INFOPLIST_FILE = llap/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = cn.edu.nju.cs.weiwang.llap;
+				PRODUCT_BUNDLE_IDENTIFIER = cn.edu.nju.cs.weiwang.llap2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -323,11 +333,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = T3PD9WT28P;
+				DEVELOPMENT_TEAM = HK23QB553T;
 				INFOPLIST_FILE = llap/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = cn.edu.nju.cs.weiwang.llap;
+				PRODUCT_BUNDLE_IDENTIFIER = cn.edu.nju.cs.weiwang.llap2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

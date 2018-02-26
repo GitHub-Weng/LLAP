@@ -36,6 +36,8 @@ RangeFinder::RangeFinder( UInt32 inMaxFramesPerSlice , UInt32 inNumFreq, Float32
         
         mBaseBandReal[i]=(Float32*) calloc(mRecDataSize/CIC_DEC, sizeof(Float32));
         mBaseBandImage[i]=(Float32*) calloc(mRecDataSize/CIC_DEC, sizeof(Float32));
+        mBaseBandRealIDFT[i]=(Float32*) calloc(mRecDataSize/CIC_DEC, sizeof(Float32));
+        mBaseBandImageIDFT[i]=(Float32*) calloc(mRecDataSize/CIC_DEC, sizeof(Float32));
         for(UInt32 k=0;k<CIC_SEC;k++)
         {
             mCICBuffer[i][k][0]=(Float32*) calloc(mRecDataSize/CIC_DEC+CIC_DELAY, sizeof(Float32));
@@ -109,6 +111,16 @@ RangeFinder::~RangeFinder()
         {
             free(mBaseBandImage[i]);
             mBaseBandImage[i]=NULL;
+        }
+        if(mBaseBandRealIDFT[i]!=NULL)
+        {
+            free(mBaseBandRealIDFT[i]);
+            mBaseBandRealIDFT[i]=NULL;
+        }
+        if(mBaseBandImageIDFT[i]!=NULL)
+        {
+            free(mBaseBandImageIDFT[i]);
+            mBaseBandImageIDFT[i]=NULL;
         }
         for(UInt32 k=0;k<CIC_SEC;k++)
         {
@@ -221,7 +233,7 @@ Float32 RangeFinder::GetDistanceChange(void)
     
     //Calculate distance from the phase change
     distancechange=CalculateDistance();
-    
+    IDFT();
     return distancechange;
 }
 
@@ -374,6 +386,83 @@ Float32 RangeFinder::CalculateDistance()
     return distance;
 }
 
+void RangeFinder::IDFT(void)
+{
+    printf("Begin %s.\n", __func__);
+    
+    // Initialize data for the DFT routines.
+    
+    vDSP_DFT_Setup zrop_Setup
+    = vDSP_DFT_zrop_CreateSetup(0, mDecsize*2, vDSP_DFT_INVERSE);
+    
+    if (zrop_Setup == NULL)
+    {
+        fprintf(stderr, "Error, vDSP_zop_CreateSetup failed.\n");
+        exit (EXIT_FAILURE);
+    }
+    
+    for(int f=0;f<mNumFreqs;f++)
+    {
+        // We need complex buffers in two different formats!
+        
+        DSPSplitComplex tempSplitComplex;
+        
+        tempSplitComplex.realp = mBaseBandReal[f];
+        tempSplitComplex.imagp = mBaseBandImage[f];
+       
+        /*
+         If Direction is vDSP_DFT_INVERSE, then the layouts of the input and
+         output arrays are swapped.  Ir and Ii describe an input array with
+         complex elements laid out as described above for Or and Oi.  When
+         vDSP_DFT_Execute returns, Or and Oi contain a pure real array, with
+         its even-index elements stored in Or and its odd-index elements in
+         Oi.
+         */
+        float *IDFTResult_Even_Index = new float[mDecsize];//Or
+        float *IDFTResult_Odd_Index = new float[mDecsize];//Oi
+        
+        printf("\nSpectrum:\n");
+        for (int k = 0; k < mDecsize; k++)
+        {
+            printf("%3d\t%6.2f\t%6.2f\n", k, tempSplitComplex.realp[k], tempSplitComplex.imagp[k]);
+        }
+        
+        
+        vDSP_DFT_Execute(zrop_Setup, mBaseBandReal[f], mBaseBandImage[f],
+                         IDFTResult_Even_Index, IDFTResult_Odd_Index);
+        
+        
+        /*
+         To provide the best possible execution speeds, the vDSP library's functions don't always adhere strictly to textbook formulas for Fourier transforms, and must be scaled accordingly. The following sections specify the scaling for each type of Fourier transform implemented by the vDSP Library. The scaling factors are also stated explicitly in the formulas that accompany the function definitions in the reference chapter.
+         */
+       
+        float scale = 1/mDecsize*2;
+        vDSP_vsmul(IDFTResult_Even_Index, 1, &scale, IDFTResult_Even_Index, 1, mDecsize);
+        vDSP_vsmul(IDFTResult_Odd_Index, 1, &scale, IDFTResult_Odd_Index, 1, mDecsize);
+        
+        int resultNum = mDecsize*2;
+        float *IDFTResult = new float[resultNum];
+        
+        
+        for (int k = 0; k < resultNum;)
+        {
+            IDFTResult[k] = IDFTResult_Even_Index[k];
+            IDFTResult[k+1] = IDFTResult_Odd_Index[k];
+            
+            //这里测试过了，循环之后将奇偶正确赋值
+            //printf("%3d,%3d\t%6.2f\t%6.2f\n", k,k+1,IDFTResult[k], IDFTResult[k+1]);
+            //printf("%3d,%3d\t%6.2f\t%6.2f\n", k,k+1,IDFTResult_Even_Index[k], IDFTResult_Odd_Index[k]);
+            k=k+2;
+        }
+        
+    }
+    
+    
+    vDSP_DFT_DestroySetup(zrop_Setup);
+    
+    printf("\nEnd %s.\n\n\n", __func__);
+}
+
 void RangeFinder::RemoveDC(void)
 {
     int f,i;
@@ -462,7 +551,13 @@ void RangeFinder::RemoveDC(void)
             mBaseBandImage[f][i]=mBaseBandImage[f][i]-mDCValue[1][f];
         }
         
+//        //copy the value to prepare the IDFT
+//        memcpy((void*)mBaseBandRealIDFT[f],(void*) mBaseBandReal[f], sizeof(Float32)*mDecsize);
+//        memcpy((void*)mBaseBandImageIDFT[f],(void*) mBaseBandImage[f], sizeof(Float32)*mDecsize);
+
     }
+    
+    
 }
 
 void RangeFinder::SendSocketData(void)
@@ -502,7 +597,7 @@ void RangeFinder::GetBaseBand(void)
     {
         mFRecDataBuffer[i]= (Float32) (mRecDataBuffer[i]/32767.0);
     }
-    log1VFloat32(mFRecDataBuffer, 512);
+    //log1VFloat32(mFRecDataBuffer, 512);
     for(i=0;i<mNumFreqs; i++)//mNumFreqs
     {
         vDSP_vmul(mFRecDataBuffer,1,mCosBuffer[i]+mCurProcPos,1,mTempBuffer,1,mCurRecPos); //multiply the cos

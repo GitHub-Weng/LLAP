@@ -57,6 +57,7 @@ private:
     void            InitBuffer();
     void            GetBaseBand();
     void            RemoveDC();
+    void            IDFT();
     void            SendSocketData();
     Float32         CalculateDistance();
     
@@ -81,6 +82,8 @@ private:
     Float32*        mCosBuffer[MAX_NUM_FREQS];
     Float32*        mBaseBandReal[MAX_NUM_FREQS];
     Float32*        mBaseBandImage[MAX_NUM_FREQS];
+    Float32*        mBaseBandRealIDFT[MAX_NUM_FREQS];
+    Float32*        mBaseBandImageIDFT[MAX_NUM_FREQS];
     Float32*        mTempBuffer;
     Float32*        mCICBuffer[MAX_NUM_FREQS][CIC_SEC][2];
     uint8_t         mSocketBuffer[SOCKETBUFLEN];
